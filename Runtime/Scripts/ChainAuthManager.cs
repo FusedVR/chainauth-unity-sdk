@@ -16,20 +16,20 @@ using UnityEngine.Networking;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 
-//TODO Add Test and Throw Errors
-namespace FusedVR.Web3 {
+//TODO Include Test and Throw Errors
+namespace FusedVR.Crypto {
     /// <summary>
-    /// A wrapper class around https://crypto.fusedvr.com APIs for authenticating against the blockchain
-    /// Via a magic link sent to a user's email address
+    /// A wrapper class around https://api-crypto.fusedvr.com APIs for authenticating against the blockchain
+    /// Using a code, email, or magic link sent to a players which can be authenticated at https://link.fusedvr.com
     /// </summary>
-    public class Web3Manager {
+    public class ChainAuthManager {
 
         #region Constants
         //generic response class
         public class Response<T> { public T response; } 
 
         //public url host for api endpoints
-        public readonly static string host = "https://crypto.fusedvr.com/api"; 
+        public readonly static string host = "https://api-crypto.fusedvr.com/api"; 
 
         //string enum class for chain ids to the api
         public class CHAIN {
@@ -62,7 +62,7 @@ namespace FusedVR.Web3 {
         /// <summary>
         /// Constructor for the Web3 Manager
         /// </summary>
-        private Web3Manager(string uuid, string appId) {
+        private ChainAuthManager(string uuid, string appId) {
             UUID = uuid;
             AppID = appId;
         }
@@ -74,8 +74,8 @@ namespace FusedVR.Web3 {
         /// If the unique id is an email, then an email be sent to the player to allow them to authenticate
         /// Tokens are saved between requests. If you would like to ignore this, please set ignoreCache = true
         /// </summary>
-        public static async Task<Web3Manager> Register(string uuid, string appId, bool ignoreCache = false) {
-            Web3Manager mngr = new Web3Manager(uuid, appId);
+        public static async Task<ChainAuthManager> Register(string uuid, string appId, bool ignoreCache = false) {
+            ChainAuthManager mngr = new ChainAuthManager(uuid, appId);
             if (!ignoreCache) {
                 string token = mngr.GetBearerToken();
                 if (token != null) {
