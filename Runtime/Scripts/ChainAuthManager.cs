@@ -16,7 +16,6 @@ using UnityEngine.Networking;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 
-//TODO Include Test and Throw Errors
 namespace FusedVR.Crypto {
     /// <summary>
     /// A wrapper class around https://api-crypto.fusedvr.com APIs for authenticating against the blockchain
@@ -99,18 +98,19 @@ namespace FusedVR.Crypto {
             string url = host + "/fused/register";
             UnityWebRequest webRequest = UnityWebRequest.Post(url, form);
             await webRequest.SendWebRequest();
-
-            Dictionary<string, string> jsonMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data));
+            string result = System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data);
             webRequest.Dispose();
-            if (jsonMap != null) {
+
+            try {
+                Dictionary<string, string> jsonMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
+
                 string code = "";
-                jsonMap.TryGetValue("code", out code); //TODO: throw error if missing
+                jsonMap.TryGetValue("code", out code);
 
                 registerCode = code;
                 return RegisterCode;
-            } else {
-                throw new Exception("Network Error : Response not JSON \n" + webRequest.downloadHandler.data);
+            } catch (Exception) {
+                throw new Exception("Network Error : Response errors \n" + result);
             }
         }
 
@@ -135,18 +135,19 @@ namespace FusedVR.Crypto {
             UnityWebRequest webRequest = UnityWebRequest.Post(url, form);
             await webRequest.SendWebRequest();
 
-            Dictionary<string, string> jsonMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data));
+            string result = System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data);
             webRequest.Dispose();
-            if (jsonMap != null) {
+
+            try {
+                Dictionary<string, string> jsonMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
                 string bearerToken = "";
                 jsonMap.TryGetValue("token", out bearerToken); //TODO: throw error if missing
-               
+
                 registerCode = null; //reset code after login
                 PlayerPrefs.SetString(GetBearerKey(), bearerToken);
                 return true;
-            } else {
-                throw new Exception("Network Error : Response not JSON \n" + webRequest.downloadHandler.data);
+            } catch (Exception) {
+                throw new Exception("Network Error : Response errors \n" + result);
             }
         }
 
@@ -161,7 +162,7 @@ namespace FusedVR.Crypto {
         /// </summary>
         public async Task<string> GetMagicLink() {
             if (GetBearerToken() != null && RegisterCode == null) { //we are already logged in
-                throw new Exception("Already logged in succesfully. Re-register before calling Magic Link");
+                throw new Exception("Already logged in succesfully. If desired, logout & re-register before calling Magic Link");
             } else if (RegisterCode == null) {
                 throw new Exception("Token expired. Call Register first.");
             }
@@ -172,16 +173,16 @@ namespace FusedVR.Crypto {
             string url = host + "/fused/getMagicLink";
             UnityWebRequest webRequest = UnityWebRequest.Post(url, form);
             await webRequest.SendWebRequest();
-
-            Dictionary<string, string> jsonMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data));
+            string result = System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data);
             webRequest.Dispose();
-            if (jsonMap != null) {
+
+            try {
+                Dictionary<string, string> jsonMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
                 string value = ""; //get dictionary value
                 jsonMap.TryGetValue("magicLink", out value); //TODO: throw error if missing
                 return value;
-            } else {
-                throw new Exception("Network Error : Response not JSON \n" + webRequest.downloadHandler.data);
+            } catch (Exception) {
+                throw new Exception("Network Error : Response errors \n" + result);
             }
         }
         #endregion
@@ -209,16 +210,16 @@ namespace FusedVR.Crypto {
             UnityWebRequest webRequest = UnityWebRequest.Post(url, form);
             webRequest.SetRequestHeader("Authorization", "Bearer " + GetBearerToken() );
             await webRequest.SendWebRequest();
-
-            Dictionary<string, string> jsonMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data));
+            string result = System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data);
             webRequest.Dispose();
-            if (jsonMap != null) {
+
+            try {
+                Dictionary<string, string> jsonMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
                 string value = ""; //get dictionary value
                 jsonMap.TryGetValue("balance", out value); //TODO: throw error if missing
                 return value;
-            } else {
-                throw new Exception("Network Error : Response not JSON \n" + webRequest.downloadHandler.data);
+            } catch (Exception) {
+                throw new Exception("Network Error : Response errors \n" + result);
             }
         }
 
@@ -234,15 +235,14 @@ namespace FusedVR.Crypto {
             UnityWebRequest webRequest = UnityWebRequest.Post(url, form);
             webRequest.SetRequestHeader("Authorization", "Bearer " + GetBearerToken() );
             await webRequest.SendWebRequest();
-
-            List< Dictionary<string, string> > jsonMap = JsonConvert.DeserializeObject<
-                List< Dictionary<string, string> > >
-            (System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data));
+            string result = System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data);
             webRequest.Dispose();
-            if (jsonMap != null) {
+
+            try {
+                List<Dictionary<string, string>> jsonMap = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(result);
                 return jsonMap;
-            } else {
-                throw new Exception("Network Error : Response not JSON \n" + webRequest.downloadHandler.data);
+            } catch (Exception) {
+                throw new Exception("Network Error : Response errors \n" + result);
             }
         }
 
@@ -258,15 +258,15 @@ namespace FusedVR.Crypto {
             UnityWebRequest webRequest = UnityWebRequest.Post(url, form);
             webRequest.SetRequestHeader("Authorization", "Bearer " + GetBearerToken() );
             await webRequest.SendWebRequest();
-
-            List<Dictionary<string, string>> jsonMap = JsonConvert.DeserializeObject<
-                List<Dictionary<string, string>>>
-            (System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data));
+            string result = System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data);
             webRequest.Dispose();
-            if (jsonMap != null) {
+            
+            try {
+                List<Dictionary<string, string>> jsonMap = JsonConvert.DeserializeObject<
+                    List<Dictionary<string, string>>>(result);
                 return jsonMap;
-            } else {
-                throw new Exception("Network Error : Response not JSON \n" + webRequest.downloadHandler.data);
+            } catch (Exception) {
+                throw new Exception("Network Error : Response errors \n" + result);
             }
         }
 
